@@ -46,20 +46,29 @@ class Game(tk.Tk):
 
     def player_movement(self, k):
         if k == 'w':
-            self.wall.move(self.player, 0, -2)
-            self.wall.move(self.player_line, 0, -2)
+            self.wall.move(self.player, -self.dy, -self.dx)
+            self.wall.move(self.player_line, -self.dy, -self.dx)
            
         if k == 'a':
-            self.wall.move(self.player, -2, 0)
-            self.wall.move(self.player_line, -2, 0)
+            self.dx = (self.player_line_x1-self.player_line_x0) * math.cos(-0.04) - (self.player_line_y1-self.player_line_y0) * math.sin(-0.04) + self.player_line_x0
+            self.dy = (self.player_line_x1-self.player_line_x0) * math.sin(-0.04) + (self.player_line_y1-self.player_line_y0) * math.cos(-0.04) + self.player_line_y0
+            self.player_line_x1 = self.dx
+            self.player_line_y1 = self.dy
+            self.wall.delete(self.player_line)
+            self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST)
+            
 
         if k == 's':
-            self.wall.move(self.player, 0, 2)
-            self.wall.move(self.player_line, 0, 2)
+            self.wall.move(self.player, self.dy, self.dx)
+            self.wall.move(self.player_line, self.dy, self.dx)
 
         if k == 'd':
-            self.wall.move(self.player, 2, 0)
-            self.wall.move(self.player_line, 2, 0) 
+            self.dx = (self.player_line_x1-self.player_line_x0) * math.cos(0.04) - (self.player_line_y1-self.player_line_y0) * math.sin(0.04) + self.player_line_x0
+            self.dy = (self.player_line_x1-self.player_line_x0) * math.sin(0.04) + (self.player_line_y1-self.player_line_y0) * math.cos(0.04) + self.player_line_y0
+            self.player_line_x1 = self.dx
+            self.player_line_y1 = self.dy
+            self.wall.delete(self.player_line)
+            self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST) 
 
 window = Game()
 window.mainloop()

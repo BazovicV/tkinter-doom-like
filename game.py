@@ -1,4 +1,5 @@
 import tkinter as tk
+import math
 
 class Game(tk.Tk):
     def __init__(self):
@@ -28,24 +29,12 @@ class Game(tk.Tk):
                 if true_false == 0:
                     colour = 'black'
 
-                if row == 0 and column == 0:
-                    self.start_x0, self.start_y0, self.finish_x1, self.finish_y1 = 10, 10, 50, 50
-                    starting_wall = self.wall.create_rectangle(self.start_x0, self.start_y0, self.finish_x1, self.finish_y1, fill=colour)
-                    starting_wall
-                        
-                else:   
-                    if column == 0:
-                        self.start_y0 += 40
-                        self.finish_y1 += 40
-                        self.start_x0 = 10
-                        self.finish_x1 = 50
-                        x0 = 0
-
-                    else:
-                        x0 = 40
-                    
-                    self.wall.create_rectangle(self.start_x0+x0, self.start_y0, self.finish_x1+x0, self.finish_y1, fill=colour)
-                    self.start_x0, self.start_y0, self.finish_x1, self.finish_y1 = self.start_x0+x0, self.start_y0, self.finish_x1+x0, self.finish_y1
+                x0 = 40 * column
+                y0 = 40 * row
+                x1 = 40 + (40 * column)
+                y1 = 40 + (40 * row)    
+                cubes = self.wall.create_rectangle(x0, y0, x1, y1, fill=colour, outline=colour)
+                cubes
 
         self.player_x0, self.player_y0, self.player_x1, self.player_y1 = 60, 60, 70, 70
         self.player = self.wall.create_rectangle(self.player_x0, self.player_y0, self.player_x1, self.player_y1, fill='red')
@@ -56,34 +45,16 @@ class Game(tk.Tk):
 
     def player_movement(self, k): # USE MOVE INSTEAD
         if k == 'w':
-            self.player_x0 += 0
-            self.player_y0 -= 2
-            self.player_x1 += 0
-            self.player_y1 -= 2
+            self.wall.move(self.player, 0, -2)
            
         if k == 'a':
-            self.player_x0 -= 2
-            self.player_y0 += 0
-            self.player_x1 -= 2
-            self.player_y1 += 0
+            self.wall.move(self.player, -2, 0)
 
         if k == 's':
-            self.player_x0 += 0
-            self.player_y0 += 2
-            self.player_x1 += 0
-            self.player_y1 += 2
+            self.wall.move(self.player, 0, 2)
 
         if k == 'd':
-            self.player_x0 += 2
-            self.player_y0 += 0
-            self.player_x1 += 2
-            self.player_y1 += 0 
-
-        self.wall.delete(self.player)
-        self.player = self.wall.create_rectangle(self.player_x0, self.player_y0, self.player_x1, self.player_y1, fill='red')   
-
-
-
+            self.wall.move(self.player, 2, 0) 
 
 window = Game()
 window.mainloop()

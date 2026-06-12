@@ -45,30 +45,31 @@ class Game(tk.Tk):
             self.bind(key, lambda event, k=key: self.player_movement(k))
 
     def player_movement(self, k):
+        angle = 0.08
+
+        movement_speed_modifier = 0.04
+
         if k == 'w':
-            self.wall.move(self.player, -self.dy, -self.dx)
-            self.wall.move(self.player_line, -self.dy, -self.dx)
+            self.wall.move(self.player, self.new_x1 * movement_speed_modifier, self.new_y1 * movement_speed_modifier)
+            self.wall.move(self.player_line, self.new_x1 * movement_speed_modifier, self.new_y1 * movement_speed_modifier)
+
+            coords = self.wall.coords(self.player_line)
+            self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1 = coords[0], coords[1], coords[2], coords[3]
            
-        if k == 'a':
-            self.dx = (self.player_line_x1-self.player_line_x0) * math.cos(-0.04) - (self.player_line_y1-self.player_line_y0) * math.sin(-0.04) + self.player_line_x0
-            self.dy = (self.player_line_x1-self.player_line_x0) * math.sin(-0.04) + (self.player_line_y1-self.player_line_y0) * math.cos(-0.04) + self.player_line_y0
-            self.player_line_x1 = self.dx
-            self.player_line_y1 = self.dy
+        if k == 'a' or k == 'd':
+            if k == 'a':
+                angle = -angle
+
+            dx = self.player_line_x1 - self.player_line_x0
+            dy = self.player_line_y1 - self.player_line_y0
+            self.new_x1 = dx * math.cos(angle) - dy * math.sin(angle) + self.player_line_x0
+            self.new_y1 = dx * math.sin(angle) + dy * math.cos(angle) + self.player_line_y0
+            self.player_line_x1 = self.new_x1
+            self.player_line_y1 = self.new_y1
+            
             self.wall.delete(self.player_line)
             self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST)
-            
 
-        if k == 's':
-            self.wall.move(self.player, self.dy, self.dx)
-            self.wall.move(self.player_line, self.dy, self.dx)
-
-        if k == 'd':
-            self.dx = (self.player_line_x1-self.player_line_x0) * math.cos(0.04) - (self.player_line_y1-self.player_line_y0) * math.sin(0.04) + self.player_line_x0
-            self.dy = (self.player_line_x1-self.player_line_x0) * math.sin(0.04) + (self.player_line_y1-self.player_line_y0) * math.cos(0.04) + self.player_line_y0
-            self.player_line_x1 = self.dx
-            self.player_line_y1 = self.dy
-            self.wall.delete(self.player_line)
-            self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST) 
 
 window = Game()
 window.mainloop()

@@ -19,10 +19,11 @@ class Game(tk.Tk):
 
         game_map = [
             [1,1,1,1,1,1,1],
-            [1,0,0,0,1,0,1],
-            [1,0,1,0,1,0,1],
             [1,0,0,0,0,0,1],
-            [1,1,1,1,1,0,1]
+            [1,0,1,1,1,1,1],
+            [1,0,0,0,0,0,1],
+            [1,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1]
         ]
     
         for row, row_of_nums in enumerate(game_map):
@@ -37,11 +38,11 @@ class Game(tk.Tk):
                     self.empty_column.append(row)
                     self.empty_row.append(column)
 
-                x0 = 40 * column
-                y0 = 40 * row
-                x1 = 40 + (40 * column)
-                y1 = 40 + (40 * row)    
-                cubes = self.wall.create_rectangle(x0, y0, x1, y1, fill=colour, outline=colour)
+                self.x0 = 40 * column
+                self.y0 = 40 * row
+                self.x1 = 40 + (40 * column)
+                self.y1 = 40 + (40 * row)    
+                cubes = self.wall.create_rectangle(self.x0, self.y0, self.x1, self.y1, fill=colour, outline=colour)
                 
 
         self.player_x0, self.player_y0, self.player_x1, self.player_y1 = 60, 60, 70, 70
@@ -73,9 +74,13 @@ class Game(tk.Tk):
                 coords = self.wall.coords(self.player_line)
                 self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1 = coords[0], coords[1], coords[2], coords[3]
             
-        if self.player_collision:
-            pass
-           
+            if self.player_collision():
+                self.wall.move(self.player, -self.dx * self.movement_speed_modifier, -self.dy * self.movement_speed_modifier)
+                self.wall.move(self.player_line, -self.dx * self.movement_speed_modifier, -self.dy * self.movement_speed_modifier)
+
+                coords = self.wall.coords(self.player_line)
+                self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1 = coords[0], coords[1], coords[2], coords[3]
+
         if k == 'a' or k == 'd':
             if k == 'a':
                 angle = -angle
@@ -93,16 +98,13 @@ class Game(tk.Tk):
         self.player_x0, self.player_y0, self.player_x1, self.player_y1 = coords[0], coords[1], coords[2], coords[3]
 
         for wall_row, wall_column in zip(self.wall_row, self.wall_column): # zip() - Pairs by index nicely
-            actual_x0 = int(self.player_x0 / 40)
-            actual_y0 = int(self.player_y0 / 40)
-            actual_x1 = int(self.player_x1 / 40)
-            actual_y1 = int(self.player_y1 / 40)
+            self.actual_x0 = int(self.player_x0 / 40)
+            self.actual_y0 = int(self.player_y0 / 40)
+            self.actual_x1 = int(self.player_x1 / 40)
+            self.actual_y1 = int(self.player_y1 / 40)
 
-            if (actual_x0, actual_y0) == (wall_column, wall_row) or (actual_x1, actual_y1) == (wall_column, wall_row) or (actual_x0, actual_y1) == (wall_column, wall_row) or (actual_x1, actual_y0) == (wall_column, wall_row):
+            if (self.actual_x0, self.actual_y0) == (wall_column, wall_row) or (self.actual_x1, self.actual_y1) == (wall_column, wall_row) or (self.actual_x0, self.actual_y1) == (wall_column, wall_row) or (self.actual_x1, self.actual_y0) == (wall_column, wall_row):
                 return True
-            
-            else:
-                return False
 
 window = Game()
 window.mainloop()

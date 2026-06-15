@@ -22,12 +22,13 @@ class Game(tk.Tk):
         self.empty_row = []
 
         game_map = [
-            [1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,1],
-            [1,0,1,1,1,1,1],
-            [1,0,0,0,0,0,1],
-            [1,0,0,0,0,0,1],
-            [1,1,1,1,1,1,1]
+            [1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,1],
+            [1,0,1,1,1,1,0,1],
+            [1,0,0,0,0,0,0,1],
+            [1,0,0,0,0,1,0,1],
+            [1,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1]
         ]
     
         for row, row_of_nums in enumerate(game_map):
@@ -132,13 +133,13 @@ class Game(tk.Tk):
    
             current_ray_angle = math.atan2(new_ray_y1-self.player_line_y0, new_ray_x1-self.player_line_x0)
 
-            x_step = math.cos(current_ray_angle) * 2 # 2 pixel per step
-            y_step = math.sin(current_ray_angle) * 2
+            x_step = math.cos(current_ray_angle) * 3 # 3 pixel per step
+            y_step = math.sin(current_ray_angle) * 3
 
             max_length = 0
             found_wall = False
 
-            while max_length < 100:
+            while max_length < 75:
                 ray_x1 += x_step
                 ray_y1 += y_step
 
@@ -167,13 +168,17 @@ class Game(tk.Tk):
 
                     y3d_top = 200 - (wall_height / 2)
                     y3d_bottom = 200 + (wall_height / 2)
+
+                    colour_strength = int(max(30, 255 - (real_distance)))
+                    wall_colour = f'#{colour_strength:02x}{colour_strength:02x}{colour_strength:02x}'
+
+                    self.canvas_3d.create_rectangle(x3d_start, y3d_top, x3d_end, y3d_bottom, fill=wall_colour, outline=wall_colour, tags='3d_wall')
                     break
                         
                 max_length += 1
 
             self.wall.create_line(self.player_line_x0, self.player_line_y0, ray_x1, ray_y1, fill='blue', tags='ray')
-            self.canvas_3d.create_rectangle(x3d_start, y3d_top, x3d_end, y3d_bottom, fill='white', outline='white', tags='3d_wall')
-                
+                            
             angle += 0.0175 # +1 degree
             
             

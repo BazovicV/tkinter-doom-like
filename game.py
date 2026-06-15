@@ -5,12 +5,16 @@ class Game(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.geometry('400x400')
+        self.geometry('805x400')
         self.title('Game')
         self.resizable(True, True)
 
-        self.wall = tk.Canvas(self, width=4000, height=4000, bg='black')
-        self.wall.pack()
+        self.wall = tk.Canvas(self, width=400, height=400, bg='black')
+        self.wall.grid(row=0, column=0)
+
+        self.canvas_3d = tk.Canvas(self, width=400, height=400, bg='black')
+        self.canvas_3d.grid(row=0, column=1)
+
 
         self.wall_column = []
         self.wall_row = []
@@ -48,7 +52,7 @@ class Game(tk.Tk):
         self.player_x0, self.player_y0, self.player_x1, self.player_y1 = 60, 60, 70, 70
         self.player = self.wall.create_rectangle(self.player_x0, self.player_y0, self.player_x1, self.player_y1, fill='red', outline='red')
     
-        self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1 = 65, 65, 65, 30      
+        self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1 = 65, 65, 65, 60      
         self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST)
 
         self.raycasting()
@@ -59,13 +63,10 @@ class Game(tk.Tk):
     def player_movement(self, k):
         angle = 0.1
 
-        self.movement_speed_modifier = 0.1
+        self.movement_speed_modifier = 0.5
 
         self.dx = self.player_line_x1 - self.player_line_x0
         self.dy = self.player_line_y1 - self.player_line_y0
-
-        self.wall.delete('ray')
-        self.raycasting()
 
         if k == 'w' or k == 's':
             if k == 's':
@@ -97,6 +98,9 @@ class Game(tk.Tk):
             
             self.wall.delete(self.player_line)
             self.player_line = self.wall.create_line(self.player_line_x0, self.player_line_y0, self.player_line_x1, self.player_line_y1, fill='green', arrow=tk.LAST)
+        
+        self.wall.delete('ray')
+        self.raycasting()
 
     def player_collision(self):
         coords = self.wall.coords(self.player)
@@ -112,6 +116,8 @@ class Game(tk.Tk):
                 return True
             
     def raycasting(self):
+        self.canvas_3d.delete('3d_wall')
+        
         angle = -0.524 # -30 degrees
 
         for ray in range(60):
@@ -120,15 +126,19 @@ class Game(tk.Tk):
 
             new_ray_x1 = dx * math.cos(angle) - dy * math.sin(angle) + self.player_line_x0
             new_ray_y1 = dx * math.sin(angle) + dy * math.cos(angle) + self.player_line_y0
+
             ray_x1 = new_ray_x1
             ray_y1 = new_ray_y1
+   
+            current_ray_angle = math.atan2(new_ray_y1-self.player_line_y0, new_ray_x1-self.player_line_x0)
 
-            current_ray_angle = math.atan2(new_ray_y1-self.player_line_y0, new_ray_x1-self.player_line_x0) + angle
-
-            x_step = math.cos(current_ray_angle) * 2 # 2 pixels per step
+            x_step = math.cos(current_ray_angle) * 2 # 2 pixel per step
             y_step = math.sin(current_ray_angle) * 2
 
-            while True:
+            max_length = 0
+            found_wall = False
+
+            while max_length < 100:
                 ray_x1 += x_step
                 ray_y1 += y_step
 
@@ -137,12 +147,35 @@ class Game(tk.Tk):
 
                 for wall_row, wall_column in zip(self.wall_row, self.wall_column):
                     if (actual_ray_x1, actual_ray_y1) == (wall_column, wall_row):
+                        found_wall = True
+                        break
 
-                        self.wall.create_line(self.player_line_x0, self.player_line_y0, ray_x1, ray_y1, fill='blue', tags='ray')
+                if found_wall:
+                    distance = math.sqrt((ray_x1 - self.player_line_x0)**2 + (ray_y1 - self.player_line_y0)**2)
+                    real_distance = distance * math.cos(angle)
+
+                    if real_distance == 0:
+                        real_distance = 0.1
+
+                    wall_height = (40 * 350) / real_distance
+
+                    if wall_height > 400:
+                        wall_height = 400
+
+                    x3d_start = ray * (400 / 60)
+                    x3d_end = x3d_start + 7
+
+                    y3d_top = 200 - (wall_height / 2)
+                    y3d_bottom = 200 + (wall_height / 2)
+                    break
                         
-                break        
+                max_length += 1
+
+            self.wall.create_line(self.player_line_x0, self.player_line_y0, ray_x1, ray_y1, fill='blue', tags='ray')
+            self.canvas_3d.create_rectangle(x3d_start, y3d_top, x3d_end, y3d_bottom, fill='white', outline='white', tags='3d_wall')
                 
             angle += 0.0175 # +1 degree
+            
             
             
 
